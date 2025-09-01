@@ -35,7 +35,7 @@ By completing this challenge, you'll learn how to:
 - Test the deployed model.
 
 > **Important!**
-> Each challenge is designed to allow you to explore how to implement DevOps principles when working with machine learning models. Some instructions may be intentionally vague, inviting you to think about your own preferred approach. If for example, the instructions ask you to create an Azure Machine Learning workspace, it's up to you to explore and decide how you want to create it. To make it the best learning experience for you, it's up to you to make it as simple or as challenging as you want.
+> Each challenge is designed to allow you to explore how to implement DevOps principles when working with machine learning models. Some instructions may be intentionally vague, inviting you to think about your own preferred approach. If for example, the instructions ask you to create an Vertex AI workspace, it's up to you to explore and decide how you want to create it. To make it the best learning experience for you, it's up to you to make it as simple or as challenging as you want.
 
 ## Challenge Duration
 
@@ -43,9 +43,9 @@ By completing this challenge, you'll learn how to:
 
 ## Instructions
 
-When a model is trained and logged by using MLflow, you can easily register and deploy the model with Azure Machine Learning. After training the model, you want to deploy the model to a real-time endpoint so that it can be consumed by a web app.
+When a model is trained and logged by using MLflow, you can easily register and deploy the model with Vertex AI. After training the model, you want to deploy the model to a real-time endpoint so that it can be consumed by a web app.
 
-- Register the model from the production job output in the Azure Machine Learning Studio. 
+- Register the model from the production job output in the Vertex AI Studio. 
 - Create a GitHub Actions workflow which deploys the latest version of the registered model.
 - The workflow should create an endpoint and deploy your model to the endpoint using the CLI (v2).
 
@@ -75,13 +75,13 @@ Pregnancies,PlasmaGlucose,DiastolicBloodPressure,TricepsThickness,SerumInsulin,B
 
 To complete this challenge successfully, you should be able to show:
 
-- A model registered in the Azure Machine Learning workspace.
+- A model registered in the Vertex AI workspace.
 - A successfully completed Action in your GitHub repo that deploys the model to a managed online endpoint.
 
 ## Useful resources
 
-- [Work with models in Azure Machine Learning.](https://docs.microsoft.com/azure/machine-learning/how-to-manage-models)
-- [Deploy an Azure Machine Learning model to a managed endpoint with CLI (v2).](https://docs.microsoft.com/learn/modules/deploy-azure-machine-learning-model-managed-endpoint-cli-v2/)
+- [Work with models in Vertex AI.](https://docs.microsoft.com/azure/machine-learning/how-to-manage-models)
+- [Deploy an Vertex AI model to a managed endpoint with CLI (v2).](https://docs.microsoft.com/learn/modules/deploy-azure-machine-learning-model-managed-endpoint-cli-v2/)
 - [Deploy MLflow models.](https://docs.microsoft.com/azure/machine-learning/how-to-deploy-mlflow-models)
 - [YAML reference to create an online endpoint.](https://docs.microsoft.com/azure/machine-learning/reference-yaml-endpoint-online)
 - [YAML reference to create a managed online deployment.](https://docs.microsoft.com/azure/machine-learning/reference-yaml-deployment-managed-online)
