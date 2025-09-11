@@ -203,8 +203,8 @@ jobs:
             --parameter-values-json "$PARAMS_JSON" \
             --labels-json "$LABELS_JSON" \
             --enable-caching
-            #--network "projects/${{ env.GCP_PROJECT_ID }}/global/networks/${{ env.VPC_NETWORK_NAME }}" \
-            #--reserved-ip-ranges "10.10.1.0/24"
+            # --network "projects/${{ env.GCP_PROJECT_ID }}/global/networks/${{ env.VPC_NETWORK_NAME }}" \
+            # --reserved-ip-ranges "10.10.1.0/24"
 
   require-approval:
     name: Require Approval Before Production
