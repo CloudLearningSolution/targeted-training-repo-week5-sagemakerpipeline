@@ -26,7 +26,7 @@ name: Vertex AI CI/CD - Train Model (Dev & Prod)
   #   - SHARED_MLOPS_BUCKET_NAME: GCS bucket for shared MLOps assets (from secrets).
   #   - PIPELINE_RUNS_GCS_ROOT_BASE: Root GCS path for pipeline run artifacts.
   #   - VERTEX_PIPELINE_SERVICE_ACCOUNT: Service account email for Vertex AI pipelines.
-  #
+  # 
   # Development Pipeline Variables:
   #   - DEV_PIPELINE_PYTHON_FILE: Path to the development pipeline Python source.
   #   - DEV_PIPELINE_COMPILED_FILE: Output file for compiled development pipeline.
@@ -55,6 +55,10 @@ env:
   SHARED_MLOPS_BUCKET_NAME: ${{ secrets.GCP_SHARED_MLOPS_BUCKET_NAME }}
   PIPELINE_RUNS_GCS_ROOT_BASE: 'gs://${{ secrets.GCP_SHARED_MLOPS_BUCKET_NAME }}/pipeline-runs'
   VERTEX_PIPELINE_SERVICE_ACCOUNT: ${{ secrets.VERTEX_PIPELINE_SA_EMAIL }}
+  # Add these network configuration variables
+# VPC_NETWORK_NAME: 'vertex-ai-vpc'
+  # For a single ML/environment:
+# VPC_SUBNET_NAME: 'vertex-ai-subnet-participant-XX'
 
   DEV_PIPELINE_PYTHON_FILE: 'src/vertex_pipeline_dev.py'
   DEV_PIPELINE_COMPILED_FILE: 'vertex_pipeline_dev.yaml'
@@ -199,6 +203,8 @@ jobs:
             --parameter-values-json "$PARAMS_JSON" \
             --labels-json "$LABELS_JSON" \
             --enable-caching
+            # --network "projects/${{ env.GCP_PROJECT_ID }}/global/networks/${{ env.VPC_NETWORK_NAME }}" \
+            # --reserved-ip-ranges "10.10.1.0/24"
 
   require-approval:
     name: Require Approval Before Production

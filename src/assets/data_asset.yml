@@ -1,6 +1,5 @@
-$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
 name: diabetes-dev-folder
 version: 1
 type: uri_folder
-path: /ds-ml/aiops/aimlops/experimentation/data  # Updated path to the data folder
+path: /data  # Updated path to the data folder
 description: "Data folder containing CSV files for training the diabetes model"
