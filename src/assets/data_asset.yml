@@ -1,5 +1,0 @@
-name: diabetes-dev-folder
-version: 1
-type: uri_folder
-path: /data  # Updated path to the data folder
-description: "Data folder containing CSV files for training the diabetes model"
