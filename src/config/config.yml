@@ -3,12 +3,14 @@
 #------------------------------
 #This YAML file provides configuration settings for connecting to AWS services,
 #specifically for use with SageMaker pipelines and related ML workflows.
+# Well architected framework best practices recommends using encrypted GitHub Secretes
 
 #Fields:
 #- account_id:         The AWS account number (string).
 #- region:             The AWS region where resources are deployed (string).
 #- sagemaker_role_arn: The ARN of the IAM role SageMaker uses for execution (string).
 #- s3_bucket:          (Optional) Default S3 bucket for input/output data (string).
+#- Redshift:           (SEED) Redshift database for input/output data (string)
 
 #Update these values with your AWS account details before running any AWS-related scripts.
 #"
