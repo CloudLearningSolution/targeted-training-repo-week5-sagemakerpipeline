@@ -1,0 +1,5 @@
+name: <placeholder>
+version: 1*
+type: uri/localpath
+path: /data  # Updated path to the data folder
+description: "Data share/view or supported dataset storage for training the model"

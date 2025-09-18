@@ -29,7 +29,7 @@ def main(args):
         # Train model and get model object
         model = train_model(args.reg_rate, X_train, X_test, y_train, y_test)
 
-        # Explicitly register the model in Azure ML's model registry
+        # Explicitly register the model in model registry
         run_id = run.info.run_id
         mlflow.register_model(f"runs:/{run_id}/model", "diabetes-classification-prod")
         print(f"Model registered from run {run_id}")
