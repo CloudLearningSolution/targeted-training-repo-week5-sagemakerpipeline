@@ -7,11 +7,25 @@ This deployment pipeline demonstrates advanced SageMaker Pipeline concepts for m
 - Endpoint Deployment: Deploy model to real-time inference endpoint
 - Best Practices: Validation, monitoring, and rollback capabilities
 
+This pipeline"""
+Model Deployment Pipeline for SageMaker
+=======================================
+This deployment pipeline demonstrates advanced SageMaker Pipeline concepts for model lifecycle management:
+- ModelStep: Create SageMaker model from training artifacts
+- RegisterModelStep: Register model with SageMaker Model Registry
+- Endpoint Deployment: Deploy model to real-time inference endpoint
+- Best Practices: Validation, monitoring, and rollback capabilities
+
 This pipeline integrates with the training pipeline outputs and demonstrates
 the complete MLOps lifecycle from training to production deployment.
+
+# TODO: Lab 5.1.1 - Component Identification: Advanced step types for model deployment (ModelStep, RegisterModelStep)
+# TODO: Lab 5.1.2 - Purpose Recognition: Model lifecycle management and deployment step purposes
+# TODO: Lab 5.1.3 - Architecture Understanding: Extended pipeline architecture for deployment workflows
+# TODO: Lab 5.1.4 - Conceptual Relationships: How deployment components integrate with training pipelines
+# TODO: Lab 5.1.5 - High-level Comparison: Complete MLOps lifecycle vs traditional model deployment
 """
 
-import boto3
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.steps import ProcessingStep, CreateModelStep
 from sagemaker.workflow.parameters import ParameterString, ParameterFloat, ParameterInteger
@@ -30,6 +44,7 @@ from sagemaker.lambda_helper import Lambda as LambdaHelper
 from sagemaker.workflow.functions import Join
 from sagemaker.model_metrics import MetricsSource, ModelMetrics
 from sagemaker.drift_check_baselines import DriftCheckBaselines
+from sagemaker.workflow.pipeline_context import PipelineSession
 from sagemaker import get_execution_role
 from sagemaker.inputs import CreateModelInput
 from sagemaker.predictor import Predictor
@@ -191,12 +206,9 @@ def create_deployment_pipeline(
     """
     Create a comprehensive model deployment pipeline with all required steps.
     
-    This pipeline demonstrates the complete deployment workflow:
-    1. Model validation and preparation
-    2. Model creation in SageMaker
-    3. Model registration in Model Registry
-    4. Endpoint deployment with validation
-    5. Best practices for production deployment
+    # TODO: Lab 5.1.3 - Architecture Understanding: Complete deployment workflow architecture
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Integration with training pipeline outputs
+    # TODO: Lab 5.1.5 - High-level Comparison: Automated deployment vs manual model deployment
     
     Args:
         role (str): SageMaker execution role ARN
@@ -218,6 +230,9 @@ def create_deployment_pipeline(
         except Exception:
             role = "arn:aws:iam::123456789012:role/SageMakerDeploymentRole"
             logger.warning(f"Using default deployment role: {role}")
+    
+    # Create PipelineSession for proper pipeline execution
+    pipeline_session = PipelineSession()
     
     # =================================================================
     # DEPLOYMENT PIPELINE PARAMETERS
@@ -275,15 +290,18 @@ def create_deployment_pipeline(
     # =================================================================
     # STEP 1: PRE-DEPLOYMENT VALIDATION
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: ProcessingStep used for deployment validation
+    # TODO: Lab 5.1.2 - Purpose Recognition: Validation and quality assurance before deployment
     logger.info("=== Defining Pre-Deployment Validation Step ===")
     
-    # SKLearn processor for pre-deployment validation
+    # TODO: Lab 5.2.1 - Step Configuration: SKLearn processor for pre-deployment validation
     validation_processor = SKLearnProcessor(
         framework_version="1.0-1",
         role=role,
         instance_type="ml.m5.large",
         instance_count=1,
-        base_job_name="pre-deployment-validation"
+        base_job_name="pre-deployment-validation",
+        sagemaker_session=pipeline_session
     )
     
     # Create validation script for model artifacts
@@ -341,7 +359,8 @@ if __name__ == "__main__":
     validate_model_artifacts()
 '''
     
-    # Pre-deployment validation step
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Validation step integrates with training pipeline outputs
+    # TODO: Lab 5.2.2 - Implementation Details: Pre-deployment validation step configuration
     validation_step = ProcessingStep(
         name="PreDeploymentValidationStep",
         processor=validation_processor,
@@ -375,9 +394,12 @@ if __name__ == "__main__":
     # =================================================================
     # STEP 2: CREATE SAGEMAKER MODEL - ModelStep
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: ModelStep for SageMaker model creation
+    # TODO: Lab 5.1.2 - Purpose Recognition: ModelStep creates deployable SageMaker model objects
+    # TODO: Lab 5.1.4 - Conceptual Relationships: ModelStep depends on validation step completion
     logger.info("=== Defining ModelStep for SageMaker Model Creation ===")
     
-    # Create SageMaker Model object
+    # TODO: Lab 5.2.1 - Step Configuration: Create SageMaker Model object configuration
     sklearn_model = Model(
         image_uri="246618743249.dkr.ecr.us-west-2.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3",
         model_data=model_artifacts_s3,
@@ -385,10 +407,11 @@ if __name__ == "__main__":
         entry_point="inference.py",
         source_dir="deployment_scripts",
         framework_version="1.0-1",
-        py_version="py3"
+        py_version="py3",
+        sagemaker_session=pipeline_session
     )
     
-    # ModelStep to create the model
+    # TODO: Lab 5.2.2 - Implementation Details: ModelStep implementation
     model_step = ModelStep(
         name="CreateSageMakerModelStep",
         step_args=sklearn_model.create(
@@ -401,9 +424,12 @@ if __name__ == "__main__":
     # =================================================================
     # STEP 3: ALTERNATIVE CREATE MODEL STEP - CreateModelStep
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: CreateModelStep as alternative model creation approach
+    # TODO: Lab 5.1.2 - Purpose Recognition: Different step types can achieve similar purposes
+    # TODO: Lab 5.1.5 - High-level Comparison: Multiple approaches for same deployment task
     logger.info("=== Defining CreateModelStep (Alternative Approach) ===")
     
-    # Alternative approach using CreateModelStep
+    # TODO: Lab 5.2.1 - Step Configuration: Alternative approach using CreateModelStep
     create_model_step = CreateModelStep(
         name="AlternativeCreateModelStep",
         model=sklearn_model,
@@ -417,9 +443,12 @@ if __name__ == "__main__":
     # =================================================================
     # STEP 4: MODEL REGISTRY - RegisterModelStep
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: RegisterModelStep for model lifecycle management
+    # TODO: Lab 5.1.2 - Purpose Recognition: RegisterModelStep manages model versioning and metadata
+    # TODO: Lab 5.1.4 - Conceptual Relationships: RegisterModelStep depends on ModelStep completion
     logger.info("=== Defining RegisterModelStep ===")
     
-    # Model metrics for registry
+    # TODO: Lab 5.2.1 - Step Configuration: Model metrics for registry registration
     model_metrics = ModelMetrics(
         model_statistics=MetricsSource(
             s3_uri=Join(
@@ -430,7 +459,7 @@ if __name__ == "__main__":
         )
     )
     
-    # Register model in Model Registry
+    # TODO: Lab 5.2.2 - Implementation Details: Register model in Model Registry
     register_model_step = RegisterModelStep(
         name="RegisterModelInRegistryStep",
         estimator=sklearn_model,
@@ -607,8 +636,11 @@ def lambda_handler(event, context):
     # =================================================================
     # DEPLOYMENT PIPELINE ASSEMBLY
     # =================================================================
+    # TODO: Lab 5.1.3 - Architecture Understanding: Complete deployment pipeline architecture
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Complex dependency chain for deployment workflow
     logger.info("=== Assembling Deployment Pipeline ===")
     
+    # TODO: Lab 5.1.5 - High-level Comparison: Automated deployment pipeline vs manual deployment processes
     # Create comprehensive deployment pipeline
     pipeline = Pipeline(
         name="MLOpsModelDeploymentPipeline",
@@ -622,6 +654,8 @@ def lambda_handler(event, context):
             endpoint_name
         ],
         steps=[
+            # TODO: Lab 5.1.4 - Conceptual Relationships: Sequential dependency chain for deployment
+            # TODO: Lab 5.2.4 - Dependency Creation: Complex deployment dependencies
             validation_step,           # Step 1: Pre-deployment validation
             model_step,               # Step 2: Create SageMaker model (ModelStep)
             register_model_step,      # Step 3: Register model in registry
@@ -678,35 +712,42 @@ def demonstrate_deployment_pipeline(pipeline):
 if __name__ == "__main__":
     """
     Main execution for deployment pipeline creation and demonstration.
+    
+    # TODO: Lab 5.1.5 - High-level Comparison: Complete MLOps lifecycle demonstration
     """
-    logger.info("=== SageMaker Model Deployment Pipeline ===")
-    logger.info("This pipeline demonstrates complete model deployment workflow:")
-    logger.info("1. ModelStep for SageMaker model creation")
-    logger.info("2. CreateModelStep (alternative approach)")
-    logger.info("3. RegisterModelStep for Model Registry integration")
-    logger.info("4. Lambda-based endpoint deployment")
-    logger.info("5. Best practices for production deployment")
+    logger.info("=== Lab 5.1: SageMaker Model Deployment Pipeline ===")
+    logger.info("🎯 Lab 5.1 Advanced Pipeline Concepts:")
+    logger.info("1. ✅ Lab 5.1.1 - Component Identification: Advanced step types (ModelStep, RegisterModelStep)")
+    logger.info("2. ✅ Lab 5.1.2 - Purpose Recognition: Model lifecycle and deployment purposes")
+    logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Extended deployment architecture")
+    logger.info("4. ✅ Lab 5.1.4 - Conceptual Relationships: Integration with training pipeline outputs")
+    logger.info("5. ✅ Lab 5.1.5 - High-level Comparison: Complete MLOps lifecycle vs manual processes")
     
     try:
-        # Create inference files
+        # TODO: Lab 5.2.2 - Implementation Details: Create inference files for deployment
         create_inference_files()
         
-        # Create deployment pipeline
+        # TODO: Lab 5.1.3 - Architecture Understanding: Create deployment pipeline architecture
         deployment_pipeline = create_deployment_pipeline()
         
-        # Demonstrate pipeline features
+        # TODO: Lab 5.1.1 - Component Identification: Demonstrate deployment pipeline features
         demonstrate_deployment_pipeline(deployment_pipeline)
         
-        logger.info("\n=== Integration with Other Pipeline Files ===")
-        logger.info("- train.py: Provides model artifacts for deployment")
-        logger.info("- evaluate.py: Provides metrics for deployment approval")
-        logger.info("- preprocess.py: Ensures data consistency for inference")
-        logger.info("- pipeline_dev.py: Development pipeline feeding this deployment")
-        logger.info("- pipeline_prod.py: Production pipeline with deployment integration")
+        # TODO: Lab 5.1.4 - Conceptual Relationships: Show integration with other pipeline components
+        logger.info("\n=== Integration with Other Pipeline Components ===")
+        logger.info("- train.py: Provides model artifacts for deployment (Lab 5.1.4)")
+        logger.info("- evaluate.py: Provides metrics for deployment approval (Lab 5.1.4)")
+        logger.info("- preprocess.py: Ensures data consistency for inference (Lab 5.1.4)")
+        logger.info("- pipeline_dev.py: Development pipeline feeding this deployment (Lab 5.1.4)")
+        logger.info("- pipeline_prod.py: Production pipeline with deployment integration (Lab 5.1.4)")
         
-        logger.info("\n=== Complete MLOps Workflow ===")
+        # TODO: Lab 5.1.5 - High-level Comparison: Complete MLOps workflow summary
+        logger.info("\n=== Complete MLOps Workflow (Lab 5.1.5) ===")
         logger.info("Data Processing → Training → Evaluation → Registration → Deployment")
+        logger.info("Traditional: Manual, error-prone, inconsistent")
+        logger.info("Pipeline: Automated, reliable, reproducible")
         
     except Exception as e:
+        # TODO: Lab 5.2.8 - Error Handling Implementation: Deployment pipeline error handling
         logger.error(f"Error creating deployment pipeline: {str(e)}")
         raise
