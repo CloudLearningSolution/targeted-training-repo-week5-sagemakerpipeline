@@ -1,4 +1,18 @@
-"""
+if __name__ == "__main__":
+    """
+    Main execution block for creating and analyzing the development pipeline.
+    This demonstrates the complete pipeline creation process for educational purposes.
+    The answer is: NO, pipeline_dev.py does NOT require if __name__ == "__main__": for its primary purpose
+    # TODO: Lab 5.1.3 - Architecture Understanding: Complete pipeline component architecture overview
+    # TODO: Lab 5.1.5 - High-level Comparison: This section demonstrates all Lab 5.1 learning objectives
+    """
+    logger.info("=== Lab 5.1: SageMaker Pipeline Component Architecture Overview ===")
+    logger.info("🎯 Lab 5.1 Learning Objectives:")
+    logger.info("1. ✅ Lab 5.1.1 - Component Identification: Core SageMaker Pipeline step types")
+    logger.info("2. ✅ Lab 5.1.2 - Purpose Recognition: Understanding step type purposes") 
+    logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Pipeline component architecture")
+    logger.info("4. ✅ Lab    # =================================================================
+    # STEP 1: DATA PROCESSING - Creates foundation for"""
 Enhanced SageMaker Pipeline for Development Environment
 This pipeline demonstrates the core components of a SageMaker Pipeline as a Directed Acyclic Graph (DAG):
 - ProcessingStep: Data preprocessing and validation
@@ -37,8 +51,9 @@ def create_development_pipeline(
     """
     Create a comprehensive SageMaker Pipeline for development environment.
     
-    This function demonstrates the DAG structure by showing how each step
-    depends on outputs from previous steps, creating a clear data flow.
+    # TODO: Lab 5.1.3 - Architecture Understanding: Complete pipeline architecture demonstration
+    # TODO: Lab 5.1.4 - Conceptual Relationships: ProcessingStep → TrainingStep → EvaluationStep → ConditionStep
+    # TODO: Lab 5.1.5 - High-level Comparison: Pipeline architecture vs traditional sequential notebooks
     
     Args:
         role (str): SageMaker execution role ARN
@@ -46,7 +61,7 @@ def create_development_pipeline(
         region (str): AWS region
         
     Returns:
-        Pipeline: Configured SageMaker Pipeline
+        Pipeline: Configured SageMaker Pipeline representing the component architecture
     """
     
     # Get execution role if not provided
@@ -57,6 +72,9 @@ def create_development_pipeline(
         except Exception:
             role = "arn:aws:iam::123456789012:role/SageMakerExecutionRole"
             logger.warning(f"Using default role: {role}")
+    
+    # Create PipelineSession for proper pipeline execution
+    pipeline_session = PipelineSession()
     
     # =================================================================
     # PIPELINE PARAMETERS - Enable dynamic configuration
@@ -100,20 +118,25 @@ def create_development_pipeline(
     )
     
     # =================================================================
-    # STEP 1: DATA PROCESSING - Creates foundation for pipeline DAG
+    # STEP 1: DATA PROCESSING - ProcessingStep Component
     # =================================================================
-    logger.info("=== Defining ProcessingStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: ProcessingStep is core step type for data processing
+    # TODO: Lab 5.1.2 - Purpose Recognition: Data preprocessing, validation, feature engineering
+    # TODO: Lab 5.1.3 - Architecture Understanding: Often serves as starting component in ML pipelines
+    logger.info("=== Defining ProcessingStep Component ===")
     
-    # SKLearn processor for data preprocessing
+    # TODO: Lab 5.2.1 - Step Configuration: Configure SKLearnProcessor for ProcessingStep
     sklearn_processor = SKLearnProcessor(
         framework_version="1.0-1",
         role=role,
         instance_type=processing_instance_type,
         instance_count=1,
-        base_job_name="mlops-data-preprocessing"
+        base_job_name="mlops-data-preprocessing",
+        sagemaker_session=pipeline_session
     )
     
-    # ProcessingStep - First node in our DAG
+    # TODO: Lab 5.1.4 - Conceptual Relationships: ProcessingStep creates outputs for downstream components
+    # TODO: Lab 5.2.2 - Implementation Details: Configure ProcessingStep inputs and outputs
     processing_step = ProcessingStep(
         name="DataPreprocessingStep",
         processor=sklearn_processor,
@@ -125,13 +148,14 @@ def create_development_pipeline(
             )
         ],
         outputs=[
+            # TODO: Lab 5.2.3 - Property References: Output names used for step property references
             ProcessingOutput(
-                output_name="train_data",
+                output_name="train_data",  # Referenced by TrainingStep
                 source="/opt/ml/processing/output/train",
                 destination=f"s3://{bucket_name}/pipeline-dev/train/"
             ),
             ProcessingOutput(
-                output_name="test_data", 
+                output_name="test_data",   # Referenced by EvaluationStep
                 source="/opt/ml/processing/output/test",
                 destination=f"s3://{bucket_name}/pipeline-dev/test/"
             )
@@ -142,11 +166,14 @@ def create_development_pipeline(
     )
     
     # =================================================================
-    # STEP 2: MODEL TRAINING - Depends on ProcessingStep outputs
+    # STEP 2: MODEL TRAINING - TrainingStep Component
     # =================================================================
-    logger.info("=== Defining TrainingStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: TrainingStep is core step type for model training
+    # TODO: Lab 5.1.2 - Purpose Recognition: Model training, hyperparameter optimization, ML algorithms
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Depends on ProcessingStep for training data
+    logger.info("=== Defining TrainingStep Component ===")
     
-    # SKLearn estimator for model training
+    # TODO: Lab 5.2.5 - TrainingStep Configuration: Configure SKLearn estimator for TrainingStep
     sklearn_estimator = SKLearn(
         entry_point="train.py",
         source_dir="scripts",  # Directory containing training scripts
@@ -157,39 +184,49 @@ def create_development_pipeline(
         hyperparameters={
             "reg_rate": reg_rate
         },
-        base_job_name="mlops-model-training"
+        base_job_name="mlops-model-training",
+        sagemaker_session=pipeline_session
     )
     
-    # TrainingStep - Depends on ProcessingStep (demonstrates DAG dependency)
+    # TODO: Lab 5.1.4 - Conceptual Relationships: TrainingStep input references ProcessingStep output
+    # TODO: Lab 5.2.3 - Property References: Use property references to create component dependencies
+    # TODO: Lab 5.2.4 - Dependency Creation: Create step-to-step dependencies using property references
     training_step = TrainingStep(
         name="ModelTrainingStep",
-        estimator=sklearn_estimator,
-        inputs={
-            "train": TrainingInput(
-                # This creates a dependency on the ProcessingStep
-                s3_data=processing_step.properties.ProcessingOutputConfig.Outputs["train_data"].S3Output.S3Uri,
-                content_type="text/csv"
-            )
-        }
+        step_args=sklearn_estimator.fit(
+            inputs={
+                "train": TrainingInput(
+                    # TODO: Lab 5.2.3 - Property References: Reference ProcessingStep output
+                    s3_data=processing_step.properties.ProcessingOutputConfig.Outputs["train_data"].S3Output.S3Uri,
+                    content_type="text/csv"
+                )
+            }
+        )
     )
     
     # =================================================================
-    # STEP 3: MODEL EVALUATION - Depends on both Processing and Training steps
+    # STEP 3: MODEL EVALUATION - EvaluationStep Component (ProcessingStep)
     # =================================================================
-    logger.info("=== Defining EvaluationStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: EvaluationStep uses ProcessingStep for evaluation
+    # TODO: Lab 5.1.2 - Purpose Recognition: ProcessingStep flexibility for different ML tasks
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Depends on BOTH ProcessingStep AND TrainingStep
+    logger.info("=== Defining EvaluationStep Component ===")
     
-    # Evaluation processor (reusing sklearn_processor)
+    # TODO: Lab 5.2.1 - Step Configuration: Configure ProcessingStep for evaluation workload
+    # TODO: Lab 5.2.2 - Implementation Details: Configure EvaluationStep inputs and outputs
     evaluation_step = ProcessingStep(
         name="ModelEvaluationStep",
         processor=sklearn_processor,
         code="evaluate.py",
         inputs=[
-            # Input 1: Trained model from TrainingStep (creates dependency)
+            # TODO: Lab 5.1.4 - Conceptual Relationships: Multiple component dependencies
+            # TODO: Lab 5.2.3 - Property References: Reference TrainingStep model artifacts
             ProcessingInput(
                 source=training_step.properties.ModelArtifacts.S3ModelArtifacts,
                 destination="/opt/ml/processing/input/model"
             ),
-            # Input 2: Test data from ProcessingStep (creates dependency)
+            # TODO: Lab 5.2.3 - Property References: Reference ProcessingStep test data
+            # TODO: Lab 5.2.4 - Dependency Creation: Create multiple input dependencies
             ProcessingInput(
                 source=processing_step.properties.ProcessingOutputConfig.Outputs["test_data"].S3Output.S3Uri,
                 destination="/opt/ml/processing/input/test_data"
@@ -202,7 +239,7 @@ def create_development_pipeline(
                 destination=f"s3://{bucket_name}/pipeline-dev/evaluation/"
             )
         ],
-        # PropertyFile enables reading evaluation metrics for conditional logic
+        # TODO: Lab 5.2.3 - Property References: PropertyFile enables ConditionStep to read evaluation results
         property_files=[
             PropertyFile(
                 name="EvaluationReport",
@@ -213,11 +250,15 @@ def create_development_pipeline(
     )
     
     # =================================================================
-    # STEP 4: CONDITIONAL LOGIC - Quality gate based on evaluation
+    # STEP 4: CONDITIONAL LOGIC - ConditionStep Component
     # =================================================================
-    logger.info("=== Defining ConditionStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: ConditionStep is core step type for conditional logic
+    # TODO: Lab 5.1.2 - Purpose Recognition: Quality gates, approval workflows, conditional branching
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Depends on EvaluationStep for decision data
+    logger.info("=== Defining ConditionStep Component ===")
     
-    # Condition: Check if accuracy meets minimum threshold
+    # TODO: Lab 5.1.2 - Purpose Recognition: ConditionStep reads evaluation results for decisions
+    # TODO: Lab 5.2.3 - Property References: Access evaluation metrics via PropertyFile reference
     accuracy_condition = ConditionGreaterThanOrEqualTo(
         left=evaluation_step.properties.PropertyFiles.EvaluationReport.JsonGet("accuracy"),
         right=min_accuracy_threshold
@@ -229,7 +270,8 @@ def create_development_pipeline(
         error_message="Model accuracy below threshold. Pipeline terminated."
     )
     
-    # Conditional step - demonstrates pipeline branching logic
+    # TODO: Lab 5.1.2 - Purpose Recognition: ConditionStep creates branching logic in pipeline architecture
+    # TODO: Lab 5.1.5 - High-level Comparison: Conditional pipeline logic vs manual notebook decisions
     condition_step = ConditionStep(
         name="ModelApprovalCondition",
         conditions=[accuracy_condition],
@@ -238,9 +280,14 @@ def create_development_pipeline(
     )
     
     # =================================================================
-    # PIPELINE ASSEMBLY - Bringing it all together as a DAG
+    # PIPELINE ASSEMBLY - Complete SageMaker Pipeline Architecture
     # =================================================================
-    logger.info("=== Assembling Pipeline DAG ===")
+    # TODO: Lab 5.1.3 - Architecture Understanding: Pipeline object represents complete component architecture
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Components connected through dependencies, not execution order
+    logger.info("=== Assembling Complete Pipeline Architecture ===")
+    
+    # TODO: Lab 5.1.3 - Architecture Understanding: Final component architecture summary
+    # TODO: Lab 5.2.4 - Dependency Creation: SageMaker calculates execution order from dependencies
     
     # Create the pipeline with all steps
     pipeline = Pipeline(
@@ -254,12 +301,14 @@ def create_development_pipeline(
             test_size
         ],
         steps=[
-            processing_step,    # Step 1: Data preprocessing
-            training_step,      # Step 2: Model training (depends on step 1)
-            evaluation_step,    # Step 3: Model evaluation (depends on steps 1 & 2)
-            condition_step      # Step 4: Conditional approval (depends on step 3)
+            # TODO: Lab 5.1.4 - Conceptual Relationships: Step order in list doesn't determine execution order
+            # TODO: Lab 5.2.4 - Dependency Creation: SageMaker Pipeline SDK calculates execution order from dependencies
+            processing_step,    # ProcessingStep: Data preprocessing component
+            training_step,      # TrainingStep: Model training component  
+            evaluation_step,    # EvaluationStep: Model evaluation component
+            condition_step      # ConditionStep: Conditional approval component
         ],
-        sagemaker_session=None  # Use default session
+        sagemaker_session=pipeline_session  # Use pipeline session
     )
     
     return pipeline
@@ -268,58 +317,150 @@ def demonstrate_pipeline_properties(pipeline):
     """
     Demonstrate key pipeline properties for educational purposes.
     Shows students how to inspect pipeline structure and dependencies.
+    
+    # TODO: Lab 5.1 - Analyzing Pipeline Component Architecture
+    # TODO: This function helps participants understand the pipeline architecture they built
+    # TODO: Focus on component types, relationships, and architecture patterns
     """
-    logger.info("=== Pipeline Architecture Analysis ===")
+    logger.info("=== Lab 5.1: Pipeline Architecture Analysis ===")
     logger.info(f"Pipeline Name: {pipeline.name}")
-    logger.info(f"Number of Steps: {len(pipeline.steps)}")
+    logger.info(f"Number of Components: {len(pipeline.steps)}")
     logger.info(f"Number of Parameters: {len(pipeline.parameters)}")
     
-    logger.info("\n=== Step Dependencies (DAG Structure) ===")
-    for step in pipeline.steps:
-        logger.info(f"Step: {step.name}")
-        logger.info(f"  Type: {type(step).__name__}")
-        
-        # Show input dependencies for each step
-        if hasattr(step, 'inputs') and step.inputs:
-            logger.info("  Dependencies:")
-            for input_item in step.inputs:
-                if hasattr(input_item, 'source'):
-                    logger.info(f"    - {input_item.source}")
+    # TODO: Lab 5.1 - Component Types and Purposes Analysis
+    # TODO: Identify and categorize the core SageMaker Pipeline step types
+    logger.info("\n=== Core SageMaker Pipeline Step Types ===")
+    logger.info("🔍 Step Type Analysis:")
     
-    logger.info("\n=== Parameter Configuration ===")
+    for step in pipeline.steps:
+        logger.info(f"\nComponent: {step.name}")
+        logger.info(f"  Step Type: {type(step).__name__}")
+        
+        # TODO: Lab 5.1 - Step Type Purposes
+        # TODO: Explain the purpose of each core step type
+        if isinstance(step, ProcessingStep):
+            if "Preprocessing" in step.name:
+                logger.info(f"  Purpose: Data preprocessing and validation")
+            elif "Evaluation" in step.name:
+                logger.info(f"  Purpose: Model evaluation and metrics generation")
+        elif isinstance(step, TrainingStep):
+            logger.info(f"  Purpose: Model training and hyperparameter optimization")
+        elif isinstance(step, ConditionStep):
+            logger.info(f"  Purpose: Conditional logic and quality gates")
+    
+    # TODO: Lab 5.1 - Component Relationships Overview
+    # TODO: Show conceptual relationships between components
+    logger.info("\n=== Component Relationships (Architecture Overview) ===")
+    logger.info("📊 Pipeline Architecture Pattern:")
+    logger.info("   ProcessingStep (data prep) → TrainingStep (model training)")
+    logger.info("   ProcessingStep (data prep) → EvaluationStep (model evaluation)")  
+    logger.info("   TrainingStep (model training) → EvaluationStep (model evaluation)")
+    logger.info("   EvaluationStep (model evaluation) → ConditionStep (approval gate)")
+    
+    # TODO: Lab 5.1 - vs Traditional ML Workflows
+    # TODO: Compare pipeline architecture to traditional ML approaches
+    logger.info("\n=== vs Traditional ML Workflow Patterns ===")
+    logger.info("📈 Architecture Comparison:")
+    logger.info("   Traditional ML:")
+    logger.info("     • Monolithic notebooks with mixed concerns")
+    logger.info("     • Manual execution order and dependency management")
+    logger.info("     • Limited reusability and modularity")
+    logger.info("")
+    logger.info("   SageMaker Pipeline Architecture:")
+    logger.info("     • Modular components with single responsibilities")
+    logger.info("     • Automatic dependency resolution and execution order")
+    logger.info("     • Reusable components and configurable workflows")
+    
+    # TODO: Lab 5.1 - Parameter-Driven Architecture
+    logger.info("\n=== Parameter-Driven Architecture ===")
+    logger.info("📊 Pipeline parameters enable flexible architecture:")
     for param in pipeline.parameters:
         logger.info(f"  {param.name}: {param.default_value}")
+    
+    # TODO: Lab 5.1 - Architecture Benefits Summary
+    logger.info("\n=== SageMaker Pipeline Architecture Benefits ===")
+    logger.info("✅ Modular Design: Each component has focused responsibility")
+    logger.info("✅ Dependency Management: Automatic execution order resolution")  
+    logger.info("✅ Reusability: Components can be reused across different pipelines")
+    logger.info("✅ Scalability: Each component can scale independently")
+    logger.info("✅ Maintainability: Clear separation of concerns")- {input_item.source}")
+                    if 'properties' in str(input_item.source):
+                        logger.info(f"      💡 This creates a DAG dependency!")
+    
+    # TODO: Step 1.21: Parameter Analysis for DAG Configuration  
+    logger.info("\n=== Parameter Configuration (DAG Flexibility) ===")
+    logger.info("📊 Parameters make the DAG reusable with different configurations:")
+    for param in pipeline.parameters:
+        logger.info(f"  {param.name}: {param.default_value}")
+    
+    # TODO: Step 1.22: DAG Validation Checklist
+    logger.info("\n=== DAG Validation Checklist ===")
+    logger.info("✅ DIRECTED: Each step has clear input → output flow")
+    logger.info("✅ ACYCLIC: No step depends on its own outputs (no cycles)")  
+    logger.info("✅ GRAPH: Steps are interconnected through property references")
+    logger.info("✅ EXECUTABLE: Dependencies ensure proper execution order")
 
 if __name__ == "__main__":
     """
     Main execution block for creating and analyzing the development pipeline.
     This demonstrates the complete pipeline creation process for educational purposes.
+    
+    # TODO: Lab 5.1.3 - Architecture Understanding: Complete pipeline component architecture overview
+    # TODO: Lab 5.1.5 - High-level Comparison: This section demonstrates all Lab 5.1 learning objectives
     """
-    logger.info("=== SageMaker Pipeline Development Example ===")
-    logger.info("This script demonstrates core SageMaker Pipeline concepts:")
-    logger.info("1. Pipeline as Directed Acyclic Graph (DAG)")
-    logger.info("2. Step dependencies and data flow")
-    logger.info("3. Conditional execution based on evaluation metrics")
-    logger.info("4. Parameter-driven configuration")
+    logger.info("=== Lab 5.1: SageMaker Pipeline Component Architecture Overview ===")
+    logger.info("🎯 Lab 5.1 Learning Objectives:")
+    logger.info("1. ✅ Lab 5.1.1 - Component Identification: Core SageMaker Pipeline step types")
+    logger.info("2. ✅ Lab 5.1.2 - Purpose Recognition: Understanding step type purposes") 
+    logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Pipeline component architecture")
+    logger.info("4. ✅ Lab 5.1.4 - Conceptual Relationships: How components connect conceptually")
+    logger.info("5. ✅ Lab 5.1.5 - High-level Comparison: Pipeline vs traditional ML workflows")
+    logger.info("")
+    
+    # TODO: Lab 5.1.3 - Architecture Understanding: SageMaker Pipeline SDK architecture concepts
+    logger.info("🏗️ SageMaker Pipeline SDK Component Architecture:")
+    logger.info("   📍 COMPONENT-BASED DESIGN:")
+    logger.info("      • Modular components with focused responsibilities")
+    logger.info("      • Reusable components across different pipelines")
+    logger.info("      • Clear separation of concerns")
+    logger.info("")
+    logger.info("   📊 STEP TYPE IDENTIFICATION:")
+    logger.info("      • ProcessingStep: Data processing workloads")
+    logger.info("      • TrainingStep: Model training workloads") 
+    logger.info("      • ConditionStep: Conditional logic and quality gates")
+    logger.info("")
     
     try:
-        # Create the development pipeline
+        # TODO: Lab 5.1.3 - Architecture Understanding: Create complete pipeline architecture
+        logger.info("🔨 Creating SageMaker Pipeline component architecture...")
         dev_pipeline = create_development_pipeline()
         
-        # Demonstrate pipeline properties for educational value
+        # TODO: Lab 5.1.1 - Component Identification: Analyze created pipeline architecture
+        logger.info("🔍 Analyzing pipeline component architecture...")
         demonstrate_pipeline_properties(dev_pipeline)
         
-        # Print pipeline definition (for educational inspection)
-        logger.info("\n=== Pipeline JSON Definition ===")
-        logger.info("Pipeline definition can be viewed with: pipeline.definition()")
-        logger.info("Pipeline can be executed with: pipeline.start()")
+        # TODO: Lab 5.1.5 - High-level Comparison: Architecture benefits summary
+        logger.info("\n=== Lab 5.1 Component Architecture Summary ===")
+        logger.info("💡 Key Architectural Concepts Demonstrated:")
+        logger.info("1. 📊 Lab 5.1.1 - Core Step Types: ProcessingStep, TrainingStep, ConditionStep")
+        logger.info("2. 🔗 Lab 5.1.4 - Component Relationships: Dependencies through property references")
+        logger.info("3. 🏗️ Lab 5.1.3 - Architecture Design: Modular component-based architecture")
+        logger.info("4. 📈 Lab 5.1.5 - vs Traditional: Component architecture vs monolithic notebooks")
         
-        logger.info("\n=== Next Steps for Lab ===")
-        logger.info("1. Review the pipeline definition JSON")
-        logger.info("2. Identify step dependencies in the DAG")
-        logger.info("3. Understand how PropertyFiles enable conditional logic")
-        logger.info("4. Explore parameter usage for dynamic configuration")
+        # TODO: Lab 5.1.5 - High-level Comparison: Lab completion and next steps
+        logger.info("\n=== Lab 5.1 Completion ===")
+        logger.info("🎉 Pipeline Component Architecture Overview completed!")
+        logger.info("📋 Lab 5.1 Understanding Achieved:")
+        logger.info("   • Component identification and categorization")
+        logger.info("   • Step type purposes and responsibilities")
+        logger.info("   • Pipeline architecture patterns")
+        logger.info("   • Component relationships and conceptual understanding")
+        logger.info("   • Architectural benefits vs traditional ML workflows")
+        logger.info("")
+        logger.info("🚀 Ready for Lab 5.2: SageMaker Processing, Training, and Transform Steps")
         
     except Exception as e:
-        logger.error(f"Error creating pipeline: {str(e)}")
+        # TODO: Lab 5.2.8 - Error Handling Implementation: Pipeline architecture error handling
+        logger.error(f"❌ Error in Lab 5.1 pipeline architecture: {str(e)}")
+        logger.error("💡 Review component definitions and architecture patterns")
         raise
