@@ -5,7 +5,7 @@ if __name__ == "__main__":
     The answer is: NO, pipeline_dev.py does NOT require if __name__ == "__main__": for its primary purpose
     # TODO: Lab 5.1.3 - Architecture Understanding: Complete pipeline component architecture overview
     # TODO: Lab 5.1.5 - High-level Comparison: This section demonstrates all Lab 5.1 learning objectives
-    """
+    
     logger.info("=== Lab 5.1: SageMaker Pipeline Component Architecture Overview ===")
     logger.info("🎯 Lab 5.1 Learning Objectives:")
     logger.info("1. ✅ Lab 5.1.1 - Component Identification: Core SageMaker Pipeline step types")
@@ -13,6 +13,8 @@ if __name__ == "__main__":
     logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Pipeline component architecture")
     logger.info("4. ✅ Lab    # =================================================================
     # STEP 1: DATA PROCESSING - Creates foundation for"""
+
+"""
 Enhanced SageMaker Pipeline for Development Environment
 This pipeline demonstrates the core components of a SageMaker Pipeline as a Directed Acyclic Graph (DAG):
 - ProcessingStep: Data preprocessing and validation
@@ -23,7 +25,6 @@ This pipeline demonstrates the core components of a SageMaker Pipeline as a Dire
 The pipeline showcases step dependencies, data flow, and conditional execution patterns
 that are fundamental to understanding SageMaker Pipeline architecture.
 """
-
 import boto3
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.steps import ProcessingStep, TrainingStep
