@@ -1,19 +1,3 @@
-if __name__ == "__main__":
-    """
-    Main execution block for creating and analyzing the development pipeline.
-    This demonstrates the complete pipeline creation process for educational purposes.
-    The answer is: NO, pipeline_dev.py does NOT require if __name__ == "__main__": for its primary purpose
-    # TODO: Lab 5.1.3 - Architecture Understanding: Complete pipeline component architecture overview
-    # TODO: Lab 5.1.5 - High-level Comparison: This section demonstrates all Lab 5.1 learning objectives
-    
-    logger.info("=== Lab 5.1: SageMaker Pipeline Component Architecture Overview ===")
-    logger.info("🎯 Lab 5.1 Learning Objectives:")
-    logger.info("1. ✅ Lab 5.1.1 - Component Identification: Core SageMaker Pipeline step types")
-    logger.info("2. ✅ Lab 5.1.2 - Purpose Recognition: Understanding step type purposes") 
-    logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Pipeline component architecture")
-    logger.info("4. ✅ Lab    # =================================================================
-    # STEP 1: DATA PROCESSING - Creates foundation for"""
-
 """
 Enhanced SageMaker Pipeline for Development Environment
 This pipeline demonstrates the core components of a SageMaker Pipeline as a Directed Acyclic Graph (DAG):
@@ -37,6 +21,7 @@ from sagemaker.workflow.properties import PropertyFile
 from sagemaker.workflow.conditions import ConditionGreaterThanOrEqualTo
 from sagemaker.workflow.condition_step import ConditionStep
 from sagemaker.workflow.fail_step import FailStep
+from sagemaker.workflow.pipeline_context import PipelineSession
 from sagemaker import get_execution_role
 import logging
 
@@ -384,7 +369,22 @@ def demonstrate_pipeline_properties(pipeline):
     logger.info("✅ Dependency Management: Automatic execution order resolution")  
     logger.info("✅ Reusability: Components can be reused across different pipelines")
     logger.info("✅ Scalability: Each component can scale independently")
-    logger.info("✅ Maintainability: Clear separation of concerns")- {input_item.source}")
+    logger.info("✅ Maintainability: Clear separation of concerns")
+    
+    # TODO: Step 1.20: Detailed Step Dependency Analysis 
+    logger.info("\n=== Step Dependencies (DAG Structure) ===")
+    logger.info("🔗 Analyzing step-to-step dependencies:")
+    
+    for step in pipeline.steps:
+        logger.info(f"\nStep: {step.name}")
+        logger.info(f"  Type: {type(step).__name__}")
+        
+        # Analyze inputs for dependencies
+        if hasattr(step, 'inputs') and step.inputs:
+            logger.info(f"  Dependencies created through inputs:")
+            for input_item in step.inputs:
+                if hasattr(input_item, 'source'):
+                    logger.info(f"    - {input_item.source}")
                     if 'properties' in str(input_item.source):
                         logger.info(f"      💡 This creates a DAG dependency!")
     

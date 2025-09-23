@@ -7,15 +7,6 @@ This deployment pipeline demonstrates advanced SageMaker Pipeline concepts for m
 - Endpoint Deployment: Deploy model to real-time inference endpoint
 - Best Practices: Validation, monitoring, and rollback capabilities
 
-This pipeline"""
-Model Deployment Pipeline for SageMaker
-=======================================
-This deployment pipeline demonstrates advanced SageMaker Pipeline concepts for model lifecycle management:
-- ModelStep: Create SageMaker model from training artifacts
-- RegisterModelStep: Register model with SageMaker Model Registry
-- Endpoint Deployment: Deploy model to real-time inference endpoint
-- Best Practices: Validation, monitoring, and rollback capabilities
-
 This pipeline integrates with the training pipeline outputs and demonstrates
 the complete MLOps lifecycle from training to production deployment.
 
