@@ -1,7 +1,7 @@
 """
 Training script for SageMaker TrainingStep.
 Trains a logistic regression model and saves the model artifact.
-This script is designed to run within a SageMaker TrainingStep as part of a pipeline DAG.
+This python script is designed to run within a SageMaker TrainingStep as part of a pipeline DAG.
 
 # TODO: Lab 5.1.1 - Component Identification: This script represents a TrainingStep component
 # TODO: Lab 5.1.2 - Purpose Recognition: TrainingStep is for model training workloads
