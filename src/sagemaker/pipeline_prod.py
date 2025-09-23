@@ -12,7 +12,6 @@ This pipeline showcases how the same DAG architecture scales from development
 to production with enhanced reliability, monitoring, and approval processes.
 """
 
-import boto3
 from sagemaker.workflow.pipeline import Pipeline
 from sagemaker.workflow.steps import ProcessingStep, TrainingStep
 from sagemaker.workflow.parameters import ParameterString, ParameterFloat, ParameterInteger
@@ -27,6 +26,7 @@ from sagemaker.workflow.fail_step import FailStep
 from sagemaker.model import Model
 from sagemaker.workflow.model_step import ModelStep
 from sagemaker.workflow.functions import Join
+from sagemaker.workflow.pipeline_context import PipelineSession
 from sagemaker import get_execution_role
 import logging
 
@@ -68,6 +68,9 @@ def create_production_pipeline(
         except Exception:
             role = "arn:aws:iam::123456789012:role/SageMakerProductionRole"
             logger.warning(f"Using default production role: {role}")
+    
+    # Create PipelineSession for proper pipeline execution
+    pipeline_session = PipelineSession()
     
     # =================================================================
     # PRODUCTION PIPELINE PARAMETERS - Enhanced for production use
@@ -136,9 +139,12 @@ def create_production_pipeline(
     # =================================================================
     # STEP 1: PRODUCTION DATA PROCESSING - Enhanced validation
     # =================================================================
-    logger.info("=== Defining Production ProcessingStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: ProcessingStep with production-grade configuration
+    # TODO: Lab 5.1.2 - Purpose Recognition: Same data processing purpose with enhanced validation
+    # TODO: Lab 5.1.5 - High-level Comparison: Development vs production ProcessingStep configurations
+    logger.info("=== Defining Production ProcessingStep Component ===")
     
-    # Production-grade SKLearn processor
+    # TODO: Lab 5.2.1 - Step Configuration: Production-grade SKLearnProcessor configuration
     sklearn_processor_prod = SKLearnProcessor(
         framework_version="1.0-1",
         role=role,
@@ -146,13 +152,15 @@ def create_production_pipeline(
         instance_count=1,
         base_job_name="production-data-preprocessing",
         max_runtime_in_seconds=3600,  # 1 hour timeout for production
+        sagemaker_session=pipeline_session,
         tags=[
             {"Key": "Environment", "Value": "Production"},
             {"Key": "Pipeline", "Value": "MLOpsProduction"}
         ]
     )
     
-    # Production processing step with enhanced validation
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Production ProcessingStep creates same dependencies
+    # TODO: Lab 5.2.2 - Implementation Details: Enhanced ProcessingStep configuration for production
     processing_step = ProcessingStep(
         name="ProductionDataPreprocessingStep",
         processor=sklearn_processor_prod,
@@ -199,6 +207,7 @@ def create_production_pipeline(
         base_job_name="production-model-training",
         max_run=7200,  # 2 hours for production training
         use_spot_instances=False,  # Reliability over cost for production
+        sagemaker_session=pipeline_session,
         tags=[
             {"Key": "Environment", "Value": "Production"},
             {"Key": "ModelType", "Value": "DiabetesPrediction"}
@@ -208,32 +217,37 @@ def create_production_pipeline(
     # Production training step
     training_step = TrainingStep(
         name="ProductionModelTrainingStep",
-        estimator=sklearn_estimator_prod,
-        inputs={
-            "train": TrainingInput(
-                s3_data=processing_step.properties.ProcessingOutputConfig.Outputs["production_train_data"].S3Output.S3Uri,
-                content_type="text/csv"
-            )
-        }
+        step_args=sklearn_estimator_prod.fit(
+            inputs={
+                "train": TrainingInput(
+                    s3_data=processing_step.properties.ProcessingOutputConfig.Outputs["production_train_data"].S3Output.S3Uri,
+                    content_type="text/csv"
+                )
+            }
+        )
     )
     
     # =================================================================
     # STEP 3: COMPREHENSIVE MODEL EVALUATION - Production validation
     # =================================================================
-    logger.info("=== Defining Production EvaluationStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: EvaluationStep with production-grade validation
+    # TODO: Lab 5.1.2 - Purpose Recognition: Same evaluation purpose with enhanced metrics
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Same convergence pattern as development pipeline
+    logger.info("=== Defining Production EvaluationStep Component ===")
     
-    # Enhanced evaluation step for production
+    # TODO: Lab 5.2.1 - Step Configuration: Enhanced evaluation step for production
+    # TODO: Lab 5.2.2 - Implementation Details: Production evaluation step configuration
     evaluation_step = ProcessingStep(
         name="ProductionModelEvaluationStep",
         processor=sklearn_processor_prod,
         code="evaluate.py",
         inputs=[
-            # Trained model from training step
+            # TODO: Lab 5.2.3 - Property References: Reference production TrainingStep model artifacts
             ProcessingInput(
                 source=training_step.properties.ModelArtifacts.S3ModelArtifacts,
                 destination="/opt/ml/processing/input/model"
             ),
-            # Test data from processing step
+            # TODO: Lab 5.2.3 - Property References: Reference production ProcessingStep test data
             ProcessingInput(
                 source=processing_step.properties.ProcessingOutputConfig.Outputs["production_test_data"].S3Output.S3Uri,
                 destination="/opt/ml/processing/input/test_data"
@@ -246,7 +260,7 @@ def create_production_pipeline(
                 destination=f"s3://{bucket_name}/production-pipeline/evaluation/"
             )
         ],
-        # PropertyFiles enable reading metrics for conditional logic
+        # TODO: Lab 5.2.3 - Property References: PropertyFiles enable reading metrics for conditional logic
         property_files=[
             PropertyFile(
                 name="ProductionEvaluationReport",
@@ -259,13 +273,16 @@ def create_production_pipeline(
     # =================================================================
     # STEP 4: MODEL CREATION - Prepare for registration
     # =================================================================
-    logger.info("=== Defining ModelStep ===")
+    # TODO: Lab 5.1.1 - Component Identification: ModelStep for model creation (additional step type)
+    # TODO: Lab 5.1.2 - Purpose Recognition: ModelStep prepares models for registration and deployment
+    # TODO: Lab 5.1.5 - High-level Comparison: Production adds ModelStep not present in development
+    logger.info("=== Defining ModelStep Component ===")
     
-    # Create model for registration
+    # TODO: Lab 5.2.1 - Step Configuration: Create model for registration
     model = Model(
         image_uri=sklearn_estimator_prod.image_uri,
         model_data=training_step.properties.ModelArtifacts.S3ModelArtifacts,
-        sagemaker_session=sklearn_estimator_prod.sagemaker_session,
+        sagemaker_session=pipeline_session,
         role=role
     )
     
@@ -280,9 +297,12 @@ def create_production_pipeline(
     # =================================================================
     # STEP 5: MULTI-CONDITION QUALITY GATES - Production approval
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: Multiple ConditionSteps for comprehensive validation
+    # TODO: Lab 5.1.2 - Purpose Recognition: Enhanced quality gates for production deployment
+    # TODO: Lab 5.1.5 - High-level Comparison: Single condition (dev) vs multi-condition (production)
     logger.info("=== Defining Production Quality Gates ===")
     
-    # Multiple conditions for production approval
+    # TODO: Lab 5.2.3 - Property References: Multiple conditions using PropertyFile references
     accuracy_condition = ConditionGreaterThanOrEqualTo(
         left=evaluation_step.properties.PropertyFiles.ProductionEvaluationReport.JsonGet("accuracy"),
         right=min_accuracy_threshold
@@ -298,7 +318,7 @@ def create_production_pipeline(
         right=min_recall_threshold
     )
     
-    # Fail steps for different failure scenarios
+    # TODO: Lab 5.2.8 - Error Handling Implementation: Fail steps for different failure scenarios
     accuracy_fail_step = FailStep(
         name="AccuracyFailureStep",
         error_message=Join(
@@ -325,8 +345,12 @@ def create_production_pipeline(
     # =================================================================
     # STEP 6: CONDITIONAL APPROVAL LOGIC - Production deployment gates
     # =================================================================
+    # TODO: Lab 5.1.1 - Component Identification: Nested ConditionSteps for complex approval logic
+    # TODO: Lab 5.1.2 - Purpose Recognition: Multi-tier validation for production deployment
+    # TODO: Lab 5.1.4 - Conceptual Relationships: Complex conditional relationships in production
     logger.info("=== Defining Conditional Approval Logic ===")
     
+    # TODO: Lab 5.1.5 - High-level Comparison: Nested conditional logic vs simple conditions
     # Nested conditional logic for comprehensive validation
     recall_condition_step = ConditionStep(
         name="RecallValidationStep",
@@ -353,8 +377,11 @@ def create_production_pipeline(
     # =================================================================
     # PRODUCTION PIPELINE ASSEMBLY - Complete DAG
     # =================================================================
-    logger.info("=== Assembling Production Pipeline DAG ===")
+    # TODO: Lab 5.1.3 - Architecture Understanding: Production pipeline assembly with enhanced components
+    # TODO: Lab 5.1.4 - Conceptual Relationships: More complex component relationships in production
+    logger.info("=== Assembling Production Pipeline Architecture ===")
     
+    # TODO: Lab 5.1.5 - High-level Comparison: Production pipeline vs development pipeline complexity
     # Create production pipeline with all quality gates
     pipeline = Pipeline(
         name="MLOpsProductionPipeline",
@@ -370,12 +397,14 @@ def create_production_pipeline(
             model_approval_status
         ],
         steps=[
+            # TODO: Lab 5.1.4 - Conceptual Relationships: Complex multi-step dependencies
+            # TODO: Lab 5.2.4 - Dependency Creation: Multiple conditional dependencies
             processing_step,           # Step 1: Data preprocessing
             training_step,            # Step 2: Model training (depends on step 1)
             evaluation_step,          # Step 3: Model evaluation (depends on steps 1 & 2)
             accuracy_condition_step   # Step 4: Multi-tier approval gate (depends on step 3)
         ],
-        sagemaker_session=None
+        sagemaker_session=pipeline_session
     )
     
     return pipeline
@@ -407,29 +436,34 @@ if __name__ == "__main__":
     """
     Production pipeline creation and demonstration.
     Shows advanced SageMaker Pipeline patterns for production deployment.
+    
+    # TODO: Lab 5.1.5 - High-level Comparison: Production vs development pipeline comparison
     """
-    logger.info("=== Production SageMaker Pipeline Example ===")
-    logger.info("Demonstrates advanced pipeline concepts:")
-    logger.info("1. Production-grade resource allocation")
-    logger.info("2. Multi-condition quality gates")
-    logger.info("3. Enhanced error handling and monitoring")
-    logger.info("4. Model registration preparation")
+    logger.info("=== Lab 5.1: Production SageMaker Pipeline Architecture ===")
+    logger.info("🎯 Lab 5.1 Production Pipeline Concepts:")
+    logger.info("1. ✅ Lab 5.1.1 - Component Identification: Same core components as development")
+    logger.info("2. ✅ Lab 5.1.2 - Purpose Recognition: Enhanced purposes with production optimizations") 
+    logger.info("3. ✅ Lab 5.1.3 - Architecture Understanding: Advanced production architecture patterns")
+    logger.info("4. ✅ Lab 5.1.4 - Conceptual Relationships: Complex multi-condition relationships")
+    logger.info("5. ✅ Lab 5.1.5 - High-level Comparison: Development vs production architecture")
     
     try:
-        # Create production pipeline
+        # TODO: Lab 5.1.3 - Architecture Understanding: Create production pipeline architecture
         prod_pipeline = create_production_pipeline()
         
-        # Demonstrate production features
+        # TODO: Lab 5.1.5 - High-level Comparison: Demonstrate production enhancements
         demonstrate_production_features(prod_pipeline)
         
-        logger.info("\n=== Production vs Development Comparison ===")
-        logger.info("This pipeline showcases how the same DAG architecture")
+        # TODO: Lab 5.1.5 - High-level Comparison: Architecture evolution from development to production
+        logger.info("\n=== Production vs Development Architecture Comparison ===")
+        logger.info("This pipeline showcases how the same component architecture")
         logger.info("scales from development to production with:")
-        logger.info("- Enhanced performance and reliability")
-        logger.info("- Stricter quality controls")
-        logger.info("- Advanced conditional logic")
-        logger.info("- Production monitoring and governance")
+        logger.info("- Enhanced performance and reliability (Lab 5.2.1 - Step Configuration)")
+        logger.info("- Stricter quality controls (Lab 5.1.2 - Purpose Recognition)")
+        logger.info("- Advanced conditional logic (Lab 5.1.4 - Conceptual Relationships)")
+        logger.info("- Production monitoring and governance (Lab 5.2.8 - Error Handling)")
         
     except Exception as e:
+        # TODO: Lab 5.2.8 - Error Handling Implementation: Production pipeline error handling
         logger.error(f"Error creating production pipeline: {str(e)}")
         raise
