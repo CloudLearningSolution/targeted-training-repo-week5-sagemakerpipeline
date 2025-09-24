@@ -128,11 +128,13 @@ def preprocess_data(input_path, output_train, output_test, test_size=0.2):
         input_file = os.path.join(input_path, "diabetes.csv")
         logger.info(f"Loading dataset from: {input_file}")
         logger.info("📥 ROOT NODE: Loading external data to start DAG execution")
+        # TODO: Lab 5.2.2 - Implementation Details: ProcessingStep data loading implementation
         df = pd.read_csv(input_file)
         
         # TODO: Lab 5.1.2 - Purpose Recognition: Each component has focused responsibility and processing logic
         # TODO: Step 1.8: Execute Data Validation for Entire DAG
         # TODO: Validate data that will affect ALL downstream nodes in the DAG
+        # TODO: Lab 5.2.2 - Implementation Details: Implement data validation and quality checks
         logger.info("🔍 ROOT NODE: Validating data quality for entire DAG...")
         df = validate_data(df)
         
@@ -146,6 +148,7 @@ def preprocess_data(input_path, output_train, output_test, test_size=0.2):
         logger.info("   • Train data → will create dependency for TrainingStep")
         logger.info("   • Test data → will create dependency for EvaluationStep")
         
+        # TODO: Lab 5.2.2 - Implementation Details: Execute train/test data split
         train_data, test_data = train_test_split(
             df, 
             test_size=test_size, 
@@ -164,6 +167,7 @@ def preprocess_data(input_path, output_train, output_test, test_size=0.2):
         os.makedirs(os.path.dirname(output_train), exist_ok=True)
         os.makedirs(os.path.dirname(output_test), exist_ok=True)
         
+        # TODO: Lab 5.2.2 - Implementation Details: Save processed outputs for downstream steps
         # Save the splits
         train_data.to_csv(output_train, index=False)
         test_data.to_csv(output_test, index=False)
