@@ -132,6 +132,7 @@ def evaluate_model(model_path, test_data_path, output_metrics_path):
         logger.info("⚙️ EvaluationStep Component Processing:")
         logger.info("Combining inputs from ProcessingStep (test data) + TrainingStep (model)")
         
+        # TODO: Lab 5.2.2 - Implementation Details: Generate predictions and probabilities
         # Make predictions
         y_pred = model.predict(X_test)
         
