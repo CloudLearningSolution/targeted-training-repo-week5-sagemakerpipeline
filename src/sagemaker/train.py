@@ -52,10 +52,12 @@ def train_model(training_data_path, output_model_path, reg_rate):
     try:
         # TODO: Lab 5.1 - Modular Component Design
         # TODO: Load data from upstream component (demonstrates component separation)
+        # TODO: Lab 5.2.6 - TrainingStep Implementation: Load training data from ProcessingStep
         train_data = pd.read_csv(training_data_path)
         logger.info(f"Training data shape: {train_data.shape}")
         logger.info("✓ Successfully received data from upstream ProcessingStep component")
         
+        # TODO: Lab 5.2.6 - TrainingStep Implementation: Configure feature columns and target variable
         # Define feature columns for diabetes prediction dataset
         columns = ['Pregnancies', 'PlasmaGlucose', 'DiastolicBloodPressure',
                    'TricepsThickness', 'SerumInsulin', 'BMI', 'DiabetesPedigree', 'Age']
@@ -69,11 +71,13 @@ def train_model(training_data_path, output_model_path, reg_rate):
         # TODO: Lab 5.1 - Component Purpose and Responsibility
         # TODO: TrainingStep focuses solely on model training (single responsibility)
         # TODO: Compare to traditional ML where training mixed with other concerns
+        # TODO: Lab 5.2.6 - TrainingStep Implementation: Execute model training with hyperparameters
         logger.info(f"Training logistic regression with regularization rate: {reg_rate}")
         logger.info("=== Core Training Component Logic ===")
         model = LogisticRegression(C=1 / reg_rate, solver="liblinear", random_state=42)
         model.fit(X_train, y_train)
         
+        # TODO: Lab 5.2.6 - TrainingStep Implementation: Calculate training metrics for monitoring
         # Calculate training accuracy for monitoring
         train_predictions = model.predict(X_train)
         train_accuracy = accuracy_score(y_train, train_predictions)
@@ -82,6 +86,7 @@ def train_model(training_data_path, output_model_path, reg_rate):
         # TODO: Lab 5.1 - Component Output Creation
         # TODO: Save model artifacts for downstream component consumption
         # TODO: This creates the connection point to next component in the pipeline
+        # TODO: Lab 5.2.6 - TrainingStep Implementation: Save model artifacts as .joblib file
         os.makedirs(os.path.dirname(output_model_path), exist_ok=True)
         joblib.dump(model, output_model_path)
         logger.info(f"Model successfully trained and saved at: {output_model_path}")
@@ -99,6 +104,7 @@ def train_model(training_data_path, output_model_path, reg_rate):
     except Exception as e:
         # TODO: Lab 5.1 - Component Error Handling
         # TODO: Component failures affect downstream components in the pipeline
+        # TODO: Lab 5.2.8 - Error Handling Implementation: Handle TrainingStep component failures
         logger.error(f"TrainingStep component failed: {str(e)}")
         logger.error("❌ Component failure prevents downstream execution")
         raise
@@ -106,6 +112,7 @@ def train_model(training_data_path, output_model_path, reg_rate):
 if __name__ == "__main__":
     # TODO: Lab 5.2.1 - Step Configuration: Define TrainingStep argument interface
     # TODO: Lab 5.2.2 - Implementation Details: Configure training script parameters
+    # TODO: Lab 5.2.5 - TrainingStep Configuration: Parse CLI arguments for training parameters
     parser = argparse.ArgumentParser(description="Train logistic regression model for SageMaker Pipeline")
     parser.add_argument("--training_data_path", type=str, 
                        default="/opt/ml/input/data/train/train.csv",
@@ -117,6 +124,7 @@ if __name__ == "__main__":
                        default=0.05,
                        help="Hyperparameter for this component")
     
+    # TODO: Lab 5.2.5 - TrainingStep Configuration: Parse arguments and align with pipeline expectations
     args = parser.parse_args()
     
     # TODO: Lab 5.1.1 - Component Identification: TrainingStep for model training workloads

@@ -302,6 +302,27 @@ def create_production_pipeline(
     # TODO: Lab 5.1.5 - High-level Comparison: Single condition (dev) vs multi-condition (production)
     logger.info("=== Defining Production Quality Gates ===")
     
+    # =================================================================
+    # OPTIONAL EXTENSION: BATCH TRANSFORM STEP - Production Transform
+    # =================================================================
+    # TODO: Lab 5.2.7 - Transform Step Usage: Implement batch transform jobs (optional extension)
+    # TODO: Production batch transform configuration example:
+    # TODO: from sagemaker.transformer import Transformer
+    # TODO: production_transformer = Transformer(
+    # TODO:     model_name=training_step.properties.ModelName,
+    # TODO:     instance_count=2,  # Higher capacity for production
+    # TODO:     instance_type="ml.m5.xlarge",  # Larger instances for production
+    # TODO:     output_path=f"s3://{bucket_name}/production-transform-output/",
+    # TODO:     max_concurrent_transforms=4,
+    # TODO:     max_payload=6  # MB
+    # TODO: )
+    # TODO: production_transform_step = TransformStep(
+    # TODO:     name="ProductionBatchTransformStep",
+    # TODO:     transformer=production_transformer,
+    # TODO:     inputs=TransformInput(data=f"s3://{bucket_name}/production-batch-data/")
+    # TODO: )
+    # TODO: This is an optional extension - not implemented in current pipeline
+    
     # TODO: Lab 5.2.3 - Property References: Multiple conditions using PropertyFile references
     accuracy_condition = ConditionGreaterThanOrEqualTo(
         left=evaluation_step.properties.PropertyFiles.ProductionEvaluationReport.JsonGet("accuracy"),

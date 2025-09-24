@@ -243,6 +243,25 @@ def create_development_pipeline(
     # TODO: Lab 5.1.4 - Conceptual Relationships: Depends on EvaluationStep for decision data
     logger.info("=== Defining ConditionStep Component ===")
     
+    # =================================================================
+    # OPTIONAL EXTENSION: TRANSFORM STEP - BatchTransform Component
+    # =================================================================
+    # TODO: Lab 5.2.7 - Transform Step Usage: Implement batch transform jobs (optional extension)
+    # TODO: How to scaffold a TransformStep using model artifact from TrainingStep:
+    # TODO: from sagemaker.transformer import Transformer
+    # TODO: transformer = Transformer(
+    # TODO:     model_name=training_step.properties.ModelName,
+    # TODO:     instance_count=1,
+    # TODO:     instance_type="ml.m5.large",
+    # TODO:     output_path=f"s3://{bucket_name}/transform-output/"
+    # TODO: )
+    # TODO: transform_step = TransformStep(
+    # TODO:     name="BatchTransformStep", 
+    # TODO:     transformer=transformer,
+    # TODO:     inputs=TransformInput(data=f"s3://{bucket_name}/batch-data/")
+    # TODO: )
+    # TODO: This is an optional extension - not implemented in current pipeline
+    
     # TODO: Lab 5.1.2 - Purpose Recognition: ConditionStep reads evaluation results for decisions
     # TODO: Lab 5.2.3 - Property References: Access evaluation metrics via PropertyFile reference
     accuracy_condition = ConditionGreaterThanOrEqualTo(
